@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { DbStatus } from "../types";
+import { safeStorage } from "../utils";
 import { 
   CheckCircle2, 
   ChevronDown, 
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 
 const SPREADSHEET_ID = "1qJctUfLLNduX2d_0MeOvMRGf6oHDuFC2Zmhl3mxd5oA";
+const localStorage = safeStorage;
 
 interface DbAlertProps {
   status: DbStatus | null;

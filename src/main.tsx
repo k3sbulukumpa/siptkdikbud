@@ -126,6 +126,35 @@ const DEFAULT_INFO = [
 
 // Custom interceptor for window.fetch to direct queries to Google Spreadsheet Visualization API and combine with Local overrides
 try {
+  // Shadowing localStorage to make it completely safe under sandbox iframe policies
+  const localCacheMap: Record<string, string> = {};
+  const safeLocalStorage = {
+    getItem(key: string): string | null {
+      try {
+        return window.localStorage ? window.localStorage.getItem(key) : null;
+      } catch (e) {
+        return localCacheMap[key] || null;
+      }
+    },
+    setItem(key: string, value: string): void {
+      try {
+        if (window.localStorage) {
+          window.localStorage.setItem(key, value);
+        }
+      } catch (e) {}
+      localCacheMap[key] = value;
+    },
+    removeItem(key: string): void {
+      try {
+        if (window.localStorage) {
+          window.localStorage.removeItem(key);
+        }
+      } catch (e) {}
+      delete localCacheMap[key];
+    }
+  };
+  const localStorage = safeLocalStorage;
+
   const DEFAULT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFZCEOc0EYwL2Wz_l9PpRfGUVdI8plydb4FbLR7LL3miNXbBRDuqSAqhN13AceDuYvzA/exec";
   if (localStorage.getItem("APPS_SCRIPT_WEB_APP_URL") !== DEFAULT_APPS_SCRIPT_URL) {
     localStorage.setItem("APPS_SCRIPT_WEB_APP_URL", DEFAULT_APPS_SCRIPT_URL);

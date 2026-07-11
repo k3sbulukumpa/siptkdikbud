@@ -833,8 +833,8 @@ export function printLaporan(
       }, 100);
 
       alert(
-        "KARENA KEBIJAKAN KEAMANAN GOOGLE APPS SCRIPT:\\n" +
-        "Sistem telah mengunduh berkas cetak '" + `Cetak_Laporan_${cleanNamaSekolah}.html` + "' secara otomatis ke komputer Anda.\\n\\n" +
+        "KARENA KEBIJAKAN KEAMANAN GOOGLE APPS SCRIPT:\n" +
+        "Sistem telah mengunduh berkas cetak '" + `Cetak_Laporan_${cleanNamaSekolah}.html` + "' secara otomatis ke komputer Anda.\n\n" +
         "Silakan buka berkas hasil unduhan tersebut untuk langsung menampilkan dan mencetak (print) laporan dengan sangat rapi!"
       );
     } catch (e) {
@@ -843,4 +843,41 @@ export function printLaporan(
     }
   }
 }
+
+// Memory fallback cache for localStorage in sandboxed or restricted iframe environments
+const storageCache: Record<string, string> = {};
+
+export const safeStorage = {
+  getItem(key: string): string | null {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        return localStorage.getItem(key);
+      }
+    } catch (e) {
+      // Fallback silently to memory cache
+    }
+    return storageCache[key] !== undefined ? storageCache[key] : null;
+  },
+  setItem(key: string, value: string): void {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.setItem(key, value);
+      }
+    } catch (e) {
+      // Fallback silently to memory cache
+    }
+    storageCache[key] = value;
+  },
+  removeItem(key: string): void {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.removeItem(key);
+      }
+    } catch (e) {
+      // Fallback silently to memory cache
+    }
+    delete storageCache[key];
+  }
+};
+
 
