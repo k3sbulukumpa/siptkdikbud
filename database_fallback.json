@@ -1,0 +1,69 @@
+{
+  "sekolah_db": [
+    {
+      "id": "id-sek-satu",
+      "kecamatan": "KEC. BULUKUMPA",
+      "nama_sekolah": "SDN 58 TANETE",
+      "status_sekolah": "Negeri",
+      "jumlah_rombel": 7,
+      "jumlah_siswa": 185,
+      "alamat_sekolah": "Jalan Kemakmuran Tanete"
+    },
+    {
+      "id": "id-sek-dua",
+      "kecamatan": "KEC. BULUKUMPA",
+      "nama_sekolah": "SDN 59 TANETE",
+      "status_sekolah": "Negeri",
+      "jumlah_rombel": 6,
+      "jumlah_siswa": 120
+    }
+  ],
+  "pengguna_db": [
+    {
+      "role": "Admin Dinas",
+      "identifier": "admin",
+      "password": "ammatoa"
+    },
+    {
+      "role": "Sekolah",
+      "identifier": "KEC. BULUKUMPA|SDN 58 TANETE",
+      "password": "dikerja"
+    },
+    {
+      "role": "Sekolah",
+      "identifier": "KEC. BULUKUMPA|SDN 59 TANETE",
+      "password": "dikerja"
+    }
+  ],
+  "gtk_data": [
+    {
+      "id": "ID178069900785899",
+      "kecamatan": "KEC. BULUKUMPA",
+      "sekolah": "SDN 58 TANETE",
+      "nama": "IRA INDIRA, S.Pd., M.Pd",
+      "nip": "197601152002122005",
+      "status_pegawai": "PNS",
+      "nik": "7302075501760004",
+      "golongan": "IV/b",
+      "tmt_golongan": "2023-04-01",
+      "jabatan": "Guru Ahli Madya",
+      "pendidikan": "S2",
+      "beban_tugas": "Guru Kelas SD",
+      "tmt_kepsek": "",
+      "sertifikasi": "Ya",
+      "mapel": "Guru Kelas SD",
+      "no_hp": "6281342685961",
+      "created_at": "2026-07-09T03:34:06.108Z"
+    }
+  ],
+  "papan_informasi": [
+    {
+      "id": "INFO-1",
+      "judul": "Selamat Datang di SI PTK DIKBUD BULUKUMBA",
+      "konten": "Papan Informasi ini digunakan untuk menyampaikan pengumuman resmi dari Dinas Pendidikan dan Kebudayaan Kabupaten Bulukumba kepada seluruh Admin Sekolah.",
+      "attachment_name": "",
+      "attachment_data": "",
+      "created_at": "2026-07-09T03:34:17.013Z"
+    }
+  ]
+}
