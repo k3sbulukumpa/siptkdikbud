@@ -163,7 +163,7 @@ try {
   const originalFetch = window.fetch;
 
   const fetchSheetData = async (sheetName: string): Promise<any[]> => {
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(sheetName)}`;
     try {
       const res = await originalFetch(url);
       if (!res.ok) throw new Error("HTTP error " + res.status);
