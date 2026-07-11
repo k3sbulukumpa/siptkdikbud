@@ -354,17 +354,34 @@ try {
         });
       }
 
+      const normalizeIdentifier = (ident: any) => {
+        if (ident === undefined || ident === null) return "";
+        return String(ident)
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, "")
+          .trim();
+      };
+
+      const comparePasswords = (stored: any, entered: any) => {
+        const s1 = String(stored || "").trim();
+        const s2 = String(entered || "").trim();
+        if (s1 === s2) return true;
+        if (s1.indexOf(".0") === s1.length - 2 && s1.substring(0, s1.length - 2) === s2) return true;
+        if (s2.indexOf(".0") === s2.length - 2 && s2.substring(0, s2.length - 2) === s1) return true;
+        return false;
+      };
+
       // 2. POST LOGIN
       if (urlStr.endsWith("/api/login")) {
         const { role, identifier, password } = JSON.parse(body);
         const users = await loadUsers();
         const found = users.find(
           (u: any) => u.role === role && 
-                      u.identifier.toUpperCase().trim() === identifier.toUpperCase().trim() && 
-                      String(u.password) === String(password)
+                      normalizeIdentifier(u.identifier) === normalizeIdentifier(identifier) && 
+                      comparePasswords(u.password, password)
         );
         if (found) {
-          return new Response(JSON.stringify({ success: true, role, identifier }), {
+          return new Response(JSON.stringify({ success: true, role, identifier: found.identifier }), {
             status: 200,
             headers: { "Content-Type": "application/json" }
           });
@@ -381,12 +398,12 @@ try {
         const { identifier, oldPass, newPass } = JSON.parse(body);
         const users = await loadUsers();
         const found = users.find(
-          (u: any) => u.identifier.toUpperCase().trim() === identifier.toUpperCase().trim() && 
-                      String(u.password) === String(oldPass)
+          (u: any) => normalizeIdentifier(u.identifier) === normalizeIdentifier(identifier) && 
+                      comparePasswords(u.password, oldPass)
         );
         if (found) {
           const passwordOverrides = JSON.parse(localStorage.getItem("OVERRIDE_PASSWORDS") || "{}");
-          passwordOverrides[identifier] = String(newPass);
+          passwordOverrides[found.identifier] = String(newPass);
           localStorage.setItem("OVERRIDE_PASSWORDS", JSON.stringify(passwordOverrides));
           return new Response(JSON.stringify({ success: true, message: "Password berhasil diubah secara lokal di browser Anda." }), {
             status: 200,

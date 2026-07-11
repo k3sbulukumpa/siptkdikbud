@@ -285,6 +285,24 @@ function deleteRowByValue(sheetName, columnName, targetValue) {
 // ENDPOINT HANDLERS
 // ==========================================
 
+function normalizeIdentifier(ident) {
+  if (ident === undefined || ident === null) return "";
+  return String(ident)
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .trim();
+}
+
+function comparePasswords(stored, entered) {
+  var s1 = String(stored || "").trim();
+  var s2 = String(entered || "").trim();
+  if (s1 === s2) return true;
+  // Handle cases where stored is "123.0" and entered is "123"
+  if (s1.indexOf(".0") === s1.length - 2 && s1.substring(0, s1.length - 2) === s2) return true;
+  if (s2.indexOf(".0") === s2.length - 2 && s2.substring(0, s2.length - 2) === s1) return true;
+  return false;
+}
+
 function handleGetDropdownData() {
   writeSheetHeaders("sekolah_db", ["id", "kecamatan", "nama_sekolah", "status_sekolah", "jumlah_rombel", "jumlah_siswa", "alamat_sekolah"]);
   var list = getSheetData("sekolah_db");
@@ -340,12 +358,13 @@ function handleLogin(payload) {
 
   var found = users.filter(function(u) {
     return String(u.role).toLowerCase() === String(role).toLowerCase() &&
-           String(u.identifier).toUpperCase().trim() === identifier &&
-           String(u.password) === password;
+           normalizeIdentifier(u.identifier) === normalizeIdentifier(identifier) &&
+           comparePasswords(u.password, password);
   });
 
   if (found.length > 0) {
-    return { success: true, role: role, identifier: payload.identifier };
+    // Return the exact identifier stored in the database to align with other DB records
+    return { success: true, role: role, identifier: found[0].identifier };
   }
   return { success: false, message: "Username/Sekolah atau Password salah!" };
 }
@@ -365,7 +384,7 @@ function handleChangePassword(payload) {
 
   for (var i = 0; i < users.length; i++) {
     var u = users[i];
-    if (String(u.identifier).toUpperCase().trim() === identifier && String(u.password) === oldPass) {
+    if (normalizeIdentifier(u.identifier) === normalizeIdentifier(identifier) && comparePasswords(u.password, oldPass)) {
       rowIndex = u.rowNumber;
       break;
     }
