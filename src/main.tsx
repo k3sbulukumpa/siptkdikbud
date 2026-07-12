@@ -156,7 +156,7 @@ try {
   const localStorage = safeLocalStorage;
 
   const DEFAULT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFZCEOc0EYwL2Wz_l9PpRfGUVdI8plydb4FbLR7LL3miNXbBRDuqSAqhN13AceDuYvzA/exec";
-  if (localStorage.getItem("APPS_SCRIPT_WEB_APP_URL") !== DEFAULT_APPS_SCRIPT_URL) {
+  if (!localStorage.getItem("APPS_SCRIPT_WEB_APP_URL")) {
     localStorage.setItem("APPS_SCRIPT_WEB_APP_URL", DEFAULT_APPS_SCRIPT_URL);
   }
 
@@ -333,6 +333,14 @@ try {
           
           if (!res.ok) throw new Error("Apps Script Web App returned status " + res.status);
           const responseText = await res.text();
+          
+          // Verify if response is valid JSON (e.g. not an HTML authorization page or error page)
+          try {
+            JSON.parse(responseText);
+          } catch (e) {
+            throw new Error("Respon Apps Script bukan JSON yang valid. Kemungkinan besar Apps Script memerlukan otorisasi ulang atau belum diterbitkan dengan versi baru (New Version).");
+          }
+
           return new Response(responseText, {
             status: 200,
             headers: { "Content-Type": "application/json" }
@@ -750,6 +758,19 @@ try {
         localStorage.setItem("DELETED_INFO_IDS", JSON.stringify(filteredDeleted));
 
         return new Response(JSON.stringify({ success: true, message: "Informasi berhasil disimpan secara lokal." }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+
+      // 13.5 POST DRIVE UPLOAD (Fallback lokal jika Apps Script bermasalah atau offline)
+      if (urlStr.endsWith("/api/drive/upload")) {
+        const reqData = JSON.parse(body);
+        return new Response(JSON.stringify({
+          success: true,
+          message: "Berkas disimpan secara lokal.",
+          url: reqData.data
+        }), {
           status: 200,
           headers: { "Content-Type": "application/json" }
         });

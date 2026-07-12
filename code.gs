@@ -139,6 +139,10 @@ function api_handler(path, method, payloadStr) {
       return handleGetInformasiList();
     }
 
+    if (path.indexOf("/api/drive/upload") !== -1) {
+      return handleDriveUpload(payload);
+    }
+
     if (path.indexOf("/api/informasi/save") !== -1) {
       return handleSaveInformasi(payload);
     }
@@ -620,4 +624,52 @@ function handleDeleteInformasi(payload) {
     return { success: true, message: "Informasi berhasil dihapus dari Google Spreadsheet secara live." };
   }
   return { success: false, message: "Informasi tidak ditemukan." };
+}
+
+/**
+ * Mengunggah berkas ke folder penyimpanan Google Drive yang ditentukan
+ */
+function handleDriveUpload(payload) {
+  try {
+    var name = payload.name;
+    var rawData = payload.data;
+    
+    if (!name || !rawData) {
+      return { success: false, message: "Nama berkas dan data wajib disertakan." };
+    }
+    
+    // Parse base64 data
+    var parts = rawData.split(",");
+    var base64Data = parts.length > 1 ? parts[1] : parts[0];
+    var contentType = "application/octet-stream";
+    
+    if (parts.length > 1) {
+      var mimeMatch = parts[0].match(/data:(.*?);/);
+      if (mimeMatch && mimeMatch[1]) {
+        contentType = mimeMatch[1];
+      }
+    }
+    
+    // Decode base64 to Utilities.newBlob
+    var decoded = Utilities.base64Decode(base64Data);
+    var blob = Utilities.newBlob(decoded, contentType, name);
+    
+    // Save to Google Drive Folder with ID 1u_zKZCNUb0Uz_-J534FrWKL2oyRwwlQp
+    var folderId = "1u_zKZCNUb0Uz_-J534FrWKL2oyRwwlQp";
+    var folder = DriveApp.getFolderById(folderId);
+    var file = folder.createFile(blob);
+    
+    // Set view permissions so anyone with the link can access/view/download
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    var fileUrl = file.getUrl();
+    
+    return {
+      success: true,
+      message: "Berkas berhasil diunggah ke Google Drive.",
+      url: fileUrl
+    };
+  } catch (error) {
+    return { success: false, message: "Gagal mengunggah berkas ke Google Drive: " + error.toString() };
+  }
 }
